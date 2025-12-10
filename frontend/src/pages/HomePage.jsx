@@ -2,6 +2,8 @@ import React, { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { motion, useScroll, useTransform } from "framer-motion";
 
+import Footer from "../components/footer.jsx";
+
 export default function HomePage() {
   const navigate = useNavigate();
   const userInfo = JSON.parse(localStorage.getItem("userInfo"));
@@ -396,20 +398,7 @@ export default function HomePage() {
       </motion.div>
 
       {/*  Footer */}
-      <motion.footer
-        initial={{ opacity: 0, y: 30 }}
-        whileInView={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.5, duration: 1 }}
-        viewport={{ once: true }}
-        className="mt-24 text-gray-600 text-sm relative z-10 flex flex-col items-center gap-4"
-      >
-        <div className="flex gap-6">
-          <a href="#" className="text-green-600 hover:text-green-800 transition-colors">GitHub</a>
-          <a href="#" className="text-green-600 hover:text-green-800 transition-colors">LinkedIn</a>
-          <a href="#" className="text-green-600 hover:text-green-800 transition-colors">Twitter</a>
-        </div>
-        <p>Developed by <b>Deepak Vishwakarma</b> | Semester 6 Project © 2025</p>
-      </motion.footer>
+      <Footer />
     </div>
   );
 }

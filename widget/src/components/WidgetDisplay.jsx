@@ -7,6 +7,7 @@ export default function WidgetDisplay() {
     cpuLoad: 0,
     batteryPercent: 0,
     isCharging: false,
+    powerUsage: 0,
     co2Emission: 0,
   });
 
@@ -26,26 +27,18 @@ export default function WidgetDisplay() {
       style={{
         WebkitAppRegion: "drag",
         background: "white",
-
-        /* ⭐ SAME padding everywhere */
-        padding: "10px",
-
+        
+        padding: "5px",
         width: "240px",
         borderRadius: "18px",
         textAlign: "center",
-
-        /* ⭐ EVEN SHADOW (soft all around) */
         boxShadow: "0 0 18px rgba(0,0,0,0.22)",
-
         userSelect: "none",
         position: "relative",
-
-        /* ⭐ FADE-IN ANIMATION */
         animation: "fadeIn 0.4s ease-out",
       }}
     >
-
-      {/* 🔽 ANIMATION KEYFRAMES */}
+      {/*  ANIMATION KEYFRAMES */}
       <style>
         {`
           @keyframes fadeIn {
@@ -60,7 +53,7 @@ export default function WidgetDisplay() {
         `}
       </style>
 
-      {/* ⭐ MINIMIZE BUTTON */}
+      {/*  MINIMIZE BUTTON */}
       <button
         className="widget-btn"
         onClick={() => window.electronAPI.minimizeWindow()}
@@ -81,7 +74,7 @@ export default function WidgetDisplay() {
         title="Minimize"
       />
 
-      {/* ⭐ CLOSE BUTTON */}
+      {/* CLOSE BUTTON */}
       <button
         className="widget-btn"
         onClick={() => window.electronAPI.closeWindow()}
@@ -123,17 +116,29 @@ export default function WidgetDisplay() {
         Battery: {stats.batteryPercent}% {stats.isCharging ? "⚡" : "🔋"}
       </p>
 
-      {/* CO₂ Emission */}
+      {/* ⭐ Power Usage */}
       <h2
         style={{
-          margin: "10px 0",
-          color: "#333",
-          fontSize: "22px",
+          margin: "6px 0",
+          color: "#222",
+          fontSize: "20px",
           fontWeight: "700",
         }}
       >
-        {stats.co2Emission} kg CO₂/min
+        {stats.powerUsage} W
       </h2>
+
+      {/* CO₂ Emission */}
+      <h3
+        style={{
+          margin: "5px 0",
+          color: "#333",
+          fontSize: "18px",
+          fontWeight: "700",
+        }}
+      >
+        {stats.co2Emission} g CO₂/min
+      </h3>
 
       <small style={{ opacity: 0.7, WebkitAppRegion: "no-drag" }}>
         Synced to Server

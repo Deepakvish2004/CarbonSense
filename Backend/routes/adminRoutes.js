@@ -5,53 +5,69 @@ import { protectAdmin } from "../middleware/authMiddleware.js";
 
 const router = express.Router();
 
-// ✅ Get all users
+/* -------------------------------------------
+   GET ALL USERS
+-------------------------------------------- */
 router.get("/users", protectAdmin, async (req, res) => {
   try {
     const users = await User.find().select("-password");
-    res.json(users);
+    return res.status(200).json(users);
   } catch (err) {
     console.error("Error fetching users:", err);
-    res.status(500).json({ message: "Failed to fetch users" });
+    return res.status(500).json({ message: "Failed to fetch users" });
   }
 });
 
-// ✅ Get all CO₂ footprints
+/* -------------------------------------------
+   GET ALL CO₂ FOOTPRINTS
+-------------------------------------------- */
 router.get("/footprints", protectAdmin, async (req, res) => {
   try {
     const footprints = await Footprint.find().populate("user", "name email");
-    res.json(footprints);
+    return res.status(200).json(footprints);
   } catch (err) {
     console.error("Error fetching footprints:", err);
-    res.status(500).json({ message: "Failed to fetch footprints" });
+    return res.status(500).json({ message: "Failed to fetch footprints" });
   }
 });
 
-// ✅ Delete a user
+/* -------------------------------------------
+   DELETE USER
+-------------------------------------------- */
 router.delete("/users/:id", protectAdmin, async (req, res) => {
   try {
     const user = await User.findById(req.params.id);
-    if (!user) return res.status(404).json({ message: "User not found" });
+
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
 
     await user.deleteOne();
-    res.json({ message: "User deleted successfully" });
+
+    return res.status(200).json({ message: "User deleted successfully" });
   } catch (err) {
     console.error("Error deleting user:", err);
-    res.status(500).json({ message: "Server error" });
+    return res.status(500).json({ message: "Server error" });
   }
 });
 
-// ✅ Delete a footprint record
+/* -------------------------------------------
+   DELETE FOOTPRINT RECORD
+-------------------------------------------- */
 router.delete("/footprints/:id", protectAdmin, async (req, res) => {
   try {
     const record = await Footprint.findById(req.params.id);
-    if (!record) return res.status(404).json({ message: "Record not found" });
+
+    if (!record) {
+      return res.status(404).json({ message: "Record not found" });
+    }
 
     await record.deleteOne();
-    res.json({ message: "Footprint deleted successfully" });
+
+    return res.status(200).json({ message: "Footprint deleted successfully" });
   } catch (err) {
     console.error("Error deleting record:", err);
-    res.status(500).json({ message: "Server error" });
+    return res.status(500).json({ message: "Server error" });
   }
 });
 

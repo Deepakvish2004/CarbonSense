@@ -26,8 +26,9 @@ export default function RegisterPage() {
     <div
       className="
         min-h-screen flex flex-col items-center justify-center 
-        bg-[radial-gradient(circle_at_center,_#bbf7d0_80px,_#34d399_250px,_#00000000_650px)],
-       bg-[radial-gradient(green_300px,green_100px,transparent_600px)]
+       
+       bg-[radial-gradient(circle_at_center,_#bbf7d0_80px,_#34d399_250px,_#00000000_650px)]
+
 
 
 

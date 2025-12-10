@@ -20,9 +20,10 @@ import adminActivityRoutes from "./routes/adminActivityRoutes.js";
 
 import wasteRoutes from "./routes/wasteRoutes.js";
 import alertRoutes from "./routes/checkAlertRoutes.js";
-import predictionRoutes from "./routes/predictionRoutes.js"; 
+import predictionRoutes from "./routes/predictionRoutes.js";
 import alertSettingsRoutes from "./routes/alertSettingsRoutes.js";
 
+import chatRoutes from "./routes/chatRoutes.js";
 
 
 // ------------------ INITIALIZE APP ------------------
@@ -38,9 +39,13 @@ app.use(express.json());
 
 // ------------------ ROUTES ------------------
 
-// Admin sections
-app.use("/api/admin", adminRoutes);
+// ✅ FIRST: Admin Auth (NO TOKEN REQUIRED)
 app.use("/api/admin/auth", adminAuthRoutes);
+
+// ✅ SECOND: Protected Admin Routes
+app.use("/api/admin", adminRoutes);
+
+// OPTIONAL Activity routes (also protected)
 app.use("/api/admin/activity", adminActivityRoutes);
 
 // User + footprint
@@ -50,14 +55,15 @@ app.use("/api/footprint", footprintRoutes);
 // Waste management
 app.use("/api/waste", wasteRoutes);
 
-// High emission email alert (10KG/15KG)
+// Alerts
 app.use("/api/alert", alertRoutes);
-
-// Prediction API
-app.use("/api/predict", predictionRoutes);
 app.use("/api/alert", alertSettingsRoutes);
 
+// Predictions
+app.use("/api/predict", predictionRoutes);
 
+// Chat
+app.use("/api/chat", chatRoutes);
 
 
 // ------------------ START SERVER ------------------

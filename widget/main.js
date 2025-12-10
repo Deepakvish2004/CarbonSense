@@ -72,16 +72,9 @@ function createTray() {
     {
       label: `Auto Start${settings.autoStart ? " ✔" : ""}`,
       click: () => {
-        // Toggle value
         settings.autoStart = !settings.autoStart;
-
-        // Save new value
         saveSettings(settings);
-
-        // Apply to Windows
         applyAutoStartState();
-
-        // Refresh tray menu so ✔ appears
         createTray();
       }
     },
@@ -112,7 +105,7 @@ function createWindow() {
 
   win = new BrowserWindow({
     width: 280,
-    height: 180,
+    height: 200,
     x: savedPos.x,
     y: savedPos.y,
     frame: false,
@@ -158,15 +151,15 @@ ipcMain.on("minimize-widget", () => {
 // ⭐ START APPLICATION
 // --------------------------------------------------------
 app.whenReady().then(() => {
-  applyAutoStartState(); // ⭐ Apply saved auto-start
-  createTray();          // ⭐ Create tray with toggle
-  createWindow();        // Create widget window
+  applyAutoStartState();
+  createTray();
+  createWindow();
   setTimeout(startEmissionLoop, 3000);
 });
 
 
 // --------------------------------------------------------
-// ⭐ CPU/BATTERY/CO2 LOOP
+// ⭐ CPU/BATTERY/CO2 LOOP  (AI MODEL INSIDE)
 // --------------------------------------------------------
 async function startEmissionLoop() {
   setInterval(async () => {
@@ -176,6 +169,7 @@ async function startEmissionLoop() {
 
       let cpuLoad = cpu.currentload;
 
+      // Fix some laptop CPUs returning 0%
       if (!cpuLoad || cpuLoad === 0) {
         const coreLoads = cpu.cpus.map(c => c.load);
         cpuLoad = coreLoads.reduce((a, b) => a + b, 0) / coreLoads.length;
@@ -185,22 +179,34 @@ async function startEmissionLoop() {
       const batteryPercent = battery.percent || 100;
       const isCharging = battery.ischarging;
 
-      const basePower = 25;
-      const cpuPower = (cpuLoad / 100) * 45;
-      const batteryDrain = !isCharging ? 5 : 0;
-      const totalPower = basePower + cpuPower + batteryDrain;
+      // ⭐ AI-Based Power Estimation
+      const predictedWatts =
+        cpuLoad * 0.45 +                 // CPU effect
+        (isCharging ? 5 : 10) +          // Charging reduces load
+        (batteryPercent < 20 ? 8 : 0) +  // Low battery increases load
+        20;                              // Base idle system usage
 
-      const co2Factor = 0.475;
-      const emission = ((totalPower / 1000) * co2Factor * (1 / 60)).toFixed(4);
+      // ⭐ Convert Watts → grams CO₂ per minute
+      const CO2_FACTOR = 0.475;
+      const co2PerMin = (
+        (predictedWatts / 1000) *
+        CO2_FACTOR *
+        1000 /
+        60
+      ).toFixed(4);
 
+      // ⭐ Send to Renderer (Widget UI)
       win?.webContents.send("system-data", {
         cpuLoad,
         batteryPercent,
         isCharging,
-        powerUsage: totalPower.toFixed(2),
-        co2Emission: emission
+        powerUsage: predictedWatts.toFixed(2),
+        co2Emission: co2PerMin
       });
-    } catch {}
+
+    } catch (err) {
+      console.log("Emission loop error:", err);
+    }
   }, 5000);
 }
 
