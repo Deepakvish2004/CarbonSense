@@ -10,10 +10,14 @@ export default function ChatWidget() {
 
   const scrollRef = useRef(null);
 
+  // 🔥 Check login
   const userInfo = JSON.parse(localStorage.getItem("userInfo") || "null");
   const userId = userInfo?._id || null;
 
-  /* Load history on open */
+  // 🚀 HIDE CHAT COMPLETELY IF USER NOT LOGGED IN
+  if (!userInfo) return null;
+
+  /* Load history */
   useEffect(() => {
     if (open && userId) {
       fetch(`http://localhost:5000/api/chat/history/${userId}`)
@@ -59,7 +63,7 @@ export default function ChatWidget() {
       setMessages((prev) => [...prev, { sender: "bot", text: botText }]);
 
       if (data.options) {
-        setOptions(data.options); // options inside chat list
+        setOptions(data.options);
       }
     } finally {
       setLoading(false);
@@ -73,7 +77,7 @@ export default function ChatWidget() {
     }
   };
 
-  /* Glass Themes */
+  /* Themes */
   const glass = darkMode
     ? "backdrop-blur-xl bg-white/10 border border-white/20 text-white"
     : "backdrop-blur-xl bg-white/40 border border-white/50 text-gray-900";
@@ -90,7 +94,7 @@ export default function ChatWidget() {
         </button>
       )}
 
-      {/* CHATBOX */}
+      {/* CHAT BOX */}
       {open && (
         <div
           className={`fixed bottom-6 right-6 w-80 sm:w-96 max-h-[70vh] rounded-3xl shadow-2xl flex flex-col p-3 z-[9999] ${glass}`}
@@ -111,10 +115,9 @@ export default function ChatWidget() {
             </button>
           </div>
 
-          {/* CHAT (messages + options together) */}
+          {/* CHAT AREA */}
           <div ref={scrollRef} className="flex-1 overflow-y-auto space-y-3 pr-1">
 
-            {/* Messages */}
             {messages.map((m, i) => (
               <div
                 key={i}
@@ -134,7 +137,7 @@ export default function ChatWidget() {
               </div>
             ))}
 
-            {/* Bot typing */}
+            {/* LOADING */}
             {loading && (
               <div className="flex justify-start">
                 <div className="px-3 py-2 bg-gray-200 rounded-xl">
@@ -147,7 +150,7 @@ export default function ChatWidget() {
               </div>
             )}
 
-            {/* OPTIONS (inside same scroll) */}
+            {/* OPTIONS */}
             {options.length > 0 && (
               <div className="flex flex-wrap gap-2 py-2">
                 {options.map((opt, idx) => (
@@ -163,7 +166,7 @@ export default function ChatWidget() {
             )}
           </div>
 
-          {/* INPUT SECTION */}
+          {/* INPUT */}
           <div className="mt-2">
             <textarea
               rows={1}
@@ -180,7 +183,7 @@ export default function ChatWidget() {
 
             <div className="flex justify-between mt-2">
               <span className="text-xs opacity-70">
-                You are {userInfo?.name || "Guest"}
+                You are {userInfo?.name || "User"}
               </span>
 
               <button

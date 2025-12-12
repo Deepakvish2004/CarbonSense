@@ -20,6 +20,8 @@ import AdminDashboard from "./pages/AdminDashboard";
 import AdminLoginPage from "./pages/AdminLoginPage";
 import AdminRegisterPage from "./pages/AdminRegisterPage";
 import AdminManageAlerts from "./pages/AdminManageAlerts";
+import LocationInsights from "./pages/LocationInsights";
+
 
 
 // --------------------------------------------------
@@ -53,6 +55,8 @@ function Layout() {
         <Route path="/dashboard" element={<DashboardPage />} />
         <Route path="/wastepage" element={<WastePage />} />
         <Route path="/prediction" element={<PredictionPage />} />
+        <Route path="/location-insights" element={<LocationInsights />} />
+
 
         {/* Admin Routes */}
         <Route path="/admin/login" element={<AdminLoginPage />} />

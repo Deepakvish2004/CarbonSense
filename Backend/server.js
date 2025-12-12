@@ -24,6 +24,9 @@ import predictionRoutes from "./routes/predictionRoutes.js";
 import alertSettingsRoutes from "./routes/alertSettingsRoutes.js";
 
 import chatRoutes from "./routes/chatRoutes.js";
+import locationRoutes from "./routes/locationRoutes.js";
+import aqiRoutes from "./routes/aqiRoutes.js";
+import locationReportRoutes from "./routes/locationReportRoutes.js";
 
 
 // ------------------ INITIALIZE APP ------------------
@@ -64,6 +67,9 @@ app.use("/api/predict", predictionRoutes);
 
 // Chat
 app.use("/api/chat", chatRoutes);
+app.use("/api/location", locationRoutes);
+app.use("/api", aqiRoutes);
+app.use("/api/location", locationReportRoutes);
 
 
 // ------------------ START SERVER ------------------

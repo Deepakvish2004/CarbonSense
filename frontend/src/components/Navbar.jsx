@@ -49,6 +49,7 @@ export default function Navbar() {
         <Link to="/about" className="hover:text-green-200 transition">
           About
         </Link>
+        
 
         {userInfo ? (
           <>

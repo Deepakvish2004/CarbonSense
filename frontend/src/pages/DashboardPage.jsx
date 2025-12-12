@@ -362,6 +362,13 @@ export default function DashboardPage() {
 
 
 
+
+              <button
+                onClick={() => navigate("/location-insights")}
+                className="bg-gradient-to-r from-green-500 to-teal-500 text-white px-4 py-2 rounded-lg shadow hover:scale-105 transition"
+              >
+                Location Insights
+              </button>
             <button
               onClick={() => navigate("/wastepage")}
               className="bg-gradient-to-r from-green-500 to-teal-500 text-white px-4 py-2 rounded-lg shadow hover:scale-105 transition"
@@ -385,6 +392,8 @@ export default function DashboardPage() {
             )}
           </div>
         </div>
+
+        
 
         <div className="divide-y divide-gray-300">
           {history.length === 0 ? (
