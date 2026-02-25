@@ -1,4 +1,4 @@
-const mongoose = require("mongoose");
+import mongoose from "mongoose";
 
 const EmissionSchema = new mongoose.Schema({
   userId: String,
@@ -10,4 +10,4 @@ const EmissionSchema = new mongoose.Schema({
   timestamp: { type: Date, default: Date.now },
 });
 
-module.exports = mongoose.model("Emission", EmissionSchema);
+export default mongoose.model("Emission", EmissionSchema);
