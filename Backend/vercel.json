@@ -9,7 +9,26 @@
     "routes": [
         {
             "src": "/(.*)",
-            "dest": "server.js"
+            "methods": [
+                "OPTIONS"
+            ],
+            "headers": {
+                "Access-Control-Allow-Origin": "https://carbon-sense-64sa.vercel.app",
+                "Access-Control-Allow-Methods": "GET, POST, PUT, DELETE, OPTIONS",
+                "Access-Control-Allow-Headers": "Content-Type, Authorization",
+                "Access-Control-Allow-Credentials": "true"
+            },
+            "continue": true
+        },
+        {
+            "src": "/(.*)",
+            "dest": "server.js",
+            "headers": {
+                "Access-Control-Allow-Origin": "https://carbon-sense-64sa.vercel.app",
+                "Access-Control-Allow-Methods": "GET, POST, PUT, DELETE, OPTIONS",
+                "Access-Control-Allow-Headers": "Content-Type, Authorization",
+                "Access-Control-Allow-Credentials": "true"
+            }
         }
     ]
 }
