@@ -1,7 +1,8 @@
 {
   "name": "backend",
   "version": "1.0.0",
-  "main": "index.js",
+  "main": "server.js",
+  "type": "module",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "start": "node server.js",
@@ -21,8 +22,8 @@
     "express": "^5.1.0",
     "express-async-handler": "^1.2.0",
     "jsonwebtoken": "^9.0.2",
-    "mongoose": "^8.19.3",
-    "nodemailer": "^7.0.10",
+    "mongoose": "^8.9.5",
+    "nodemailer": "^8.0.1",
     "openai": "^6.10.0"
   },
   "devDependencies": {

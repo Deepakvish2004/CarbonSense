@@ -1,15 +1,10 @@
 {
     "version": 2,
+    "installCommand": "npm install --prefix Backend",
     "builds": [
         {
             "src": "Backend/server.js",
-            "use": "@vercel/node",
-            "config": {
-                "installCommand": "npm install",
-                "includeFiles": [
-                    "Backend/**"
-                ]
-            }
+            "use": "@vercel/node"
         }
     ],
     "routes": [
