@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import Navbar from "../components/Navbar";
+import API_BASE from "../api/config";
 
 export default function UserInbox() {
   const [alerts, setAlerts] = useState([]);
@@ -23,7 +24,7 @@ export default function UserInbox() {
   const fetchAlerts = async () => {
     try {
       const res = await axios.get(
-        "http://localhost:5000/api/users/alerts",
+        `${API_BASE}/api/users/alerts`,
         {
           headers: {
             Authorization: `Bearer ${userInfo.token}`,
@@ -43,7 +44,7 @@ export default function UserInbox() {
       setRespondingId(alertId);
 
       await axios.post(
-        "http://localhost:5000/api/users/alerts/respond",
+        `${API_BASE}/api/users/alerts/respond`,
         { alertId, response },
         {
           headers: {

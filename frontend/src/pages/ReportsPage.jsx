@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import jsPDF from "jspdf";
+import API_BASE from "../api/config";
 import "jspdf-autotable";
 import {
   BarChart,
@@ -51,7 +52,7 @@ export default function ReportsPage() {
     try {
       const config = { headers: { Authorization: `Bearer ${user.token}` } };
       const res = await axios.get(
-        "http://localhost:5000/api/footprint/history",
+        `${API_BASE}/api/footprint/history`,
         config
       );
       setHistory(res.data);
@@ -124,8 +125,8 @@ export default function ReportsPage() {
         item.co2Emission < avgEmission
           ? "✅ Below Average"
           : item.co2Emission <= avgEmission * 1.5
-          ? "⚠️ Slightly Above"
-          : "🔥 Much Above";
+            ? "⚠️ Slightly Above"
+            : "🔥 Much Above";
 
       return {
         device: item.deviceType,

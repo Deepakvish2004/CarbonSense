@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import SemiGauge from "../components/SemiGauge";
+import API_BASE from "../api/config";
 
 import {
   LineChart,
@@ -26,10 +27,10 @@ export default function PredictionPage() {
   const [ecoScore, setEcoScore] = useState(0);
   const [scenario, setScenario] = useState("none");
 
-  const [prediction, setPrediction] = useState(null); 
+  const [prediction, setPrediction] = useState(null);
   const [alertConfig, setAlertConfig] = useState(null);
 
-  
+
 
   const userInfo = JSON.parse(localStorage.getItem("userInfo") || "{}");
 
@@ -44,18 +45,18 @@ export default function PredictionPage() {
 
 
   const fetchAlertConfig = async () => {
-  try {
-    const res = await axios.get("http://localhost:5000/api/alert/settings");
-    setAlertConfig(res.data);
-  } catch (err) {
-    console.error("❌ Failed to fetch alert settings", err);
-  }
-};
+    try {
+      const res = await axios.get(`${API_BASE}/api/alert/settings`);
+      setAlertConfig(res.data);
+    } catch (err) {
+      console.error("❌ Failed to fetch alert settings", err);
+    }
+  };
 
   const fetchHistory = async () => {
     try {
       const config = { headers: { Authorization: `Bearer ${userInfo.token}` } };
-      const res = await axios.get("http://localhost:5000/api/footprint/history", config);
+      const res = await axios.get(`${API_BASE}/api/footprint/history`, config);
       const data = res.data || [];
 
       const sorted = data.sort((a, b) => new Date(a.createdAt) - new Date(b.createdAt));
@@ -64,7 +65,7 @@ export default function PredictionPage() {
       generatePrediction(sorted);
       generateAITips(sorted);
       calculateEcoScore(sorted);
-      fetchPredictionData(); 
+      fetchPredictionData();
       fetchAlertConfig();
 
     } catch (err) {
@@ -78,7 +79,7 @@ export default function PredictionPage() {
   // NEW — CALL BACKEND PREDICTION
   const fetchPredictionData = async () => {
     try {
-      const res = await axios.post("http://localhost:5000/api/predict/predict", {
+      const res = await axios.post(`${API_BASE}/api/predict/predict`, {
         userId: userInfo._id,
       });
 
@@ -209,14 +210,14 @@ export default function PredictionPage() {
     ecoScore >= 80
       ? "bg-green-500"
       : ecoScore >= 50
-      ? "bg-yellow-400"
-      : "bg-red-500";
+        ? "bg-yellow-400"
+        : "bg-red-500";
   const scoreLabel =
     ecoScore >= 80
       ? "🌱 Excellent"
       : ecoScore >= 50
-      ? "⚠️ Moderate"
-      : "🔥 High Impact";
+        ? "⚠️ Moderate"
+        : "🔥 High Impact";
 
   return (
     <div className={`min-h-screen ${bgColor} p-6 transition-all duration-300`}>
@@ -229,11 +230,10 @@ export default function PredictionPage() {
           <select
             value={filterType}
             onChange={(e) => setFilterType(e.target.value)}
-            className={`border rounded-md px-3 py-1 text-sm ${
-              isDark
+            className={`border rounded-md px-3 py-1 text-sm ${isDark
                 ? "bg-gray-700 text-gray-100 border-gray-600"
                 : "bg-white text-gray-800 border-gray-300"
-            }`}
+              }`}
           >
             <option value="all">All Devices</option>
             {deviceTypes.map((t, i) => (
@@ -243,11 +243,10 @@ export default function PredictionPage() {
 
           <button
             onClick={() => setTheme(isDark ? "light" : "dark")}
-            className={`px-3 py-1.5 rounded-md text-sm shadow ${
-              isDark
+            className={`px-3 py-1.5 rounded-md text-sm shadow ${isDark
                 ? "bg-yellow-400 text-gray-900 hover:bg-yellow-300"
                 : "bg-gray-800 text-white hover:bg-gray-700"
-            }`}
+              }`}
           >
             {isDark ? "☀️ Light" : "🌙 Dark"}
           </button>
@@ -272,8 +271,8 @@ export default function PredictionPage() {
           Current Trend: {adjustedPrediction
             ? `${adjustedPrediction} kg CO₂`
             : predicted
-            ? `${predicted} kg CO₂`
-            : "—"}
+              ? `${predicted} kg CO₂`
+              : "—"}
         </p>
 
         <p className="text-sm mt-2 text-gray-500 dark:text-gray-300">
@@ -331,13 +330,12 @@ export default function PredictionPage() {
           {aiTips.map((tip, i) => (
             <div
               key={i}
-              className={`p-4 rounded-lg border ${
-                tip.type === "warning"
+              className={`p-4 rounded-lg border ${tip.type === "warning"
                   ? "border-red-400 bg-red-50"
                   : tip.type === "alert"
-                  ? "border-yellow-400 bg-yellow-50"
-                  : "border-green-300 bg-green-50"
-              }`}
+                    ? "border-yellow-400 bg-yellow-50"
+                    : "border-green-300 bg-green-50"
+                }`}
             >
               <h3 className="font-semibold mb-1 text-gray-800">{tip.title}</h3>
               <p className="text-sm text-gray-600">{tip.message}</p>
@@ -346,33 +344,32 @@ export default function PredictionPage() {
         </div>
       </div>
       {/* ⭐ Semi-Circle Risk Gauge */}
-<div className={`${cardBg} max-w-3xl mx-auto p-6 m-10 rounded-lg  shadow-md mb-10`}>
-  <h2 className={`text-lg font-semibold ${textPrimary} mb-3`}>
-    Emission Risk Meter
-  </h2>
+      <div className={`${cardBg} max-w-3xl mx-auto p-6 m-10 rounded-lg  shadow-md mb-10`}>
+        <h2 className={`text-lg font-semibold ${textPrimary} mb-3`}>
+          Emission Risk Meter
+        </h2>
 
-  <SemiGauge
-  value={prediction?.totalOverall || 0}
-  alert10={alertConfig?.alert10}
-  alert15={alertConfig?.alert15}
-/>
+        <SemiGauge
+          value={prediction?.totalOverall || 0}
+          alert10={alertConfig?.alert10}
+          alert15={alertConfig?.alert15}
+        />
 
 
-  <p className="text-sm text-center text-gray-500 mt-2">
-    Based on your lifetime total emissions.
-  </p>
-</div>
+        <p className="text-sm text-center text-gray-500 mt-2">
+          Based on your lifetime total emissions.
+        </p>
+      </div>
 
 
       {/* Back Button */}
       <div className="text-center mt-10">
         <button
           onClick={() => navigate(-1)}
-          className={`px-6 py-2 rounded-lg shadow font-medium transition ${
-            isDark
+          className={`px-6 py-2 rounded-lg shadow font-medium transition ${isDark
               ? "bg-green-500 hover:bg-green-400 text-gray-900"
               : "bg-green-600 hover:bg-green-700 text-white"
-          }`}
+            }`}
         >
           ← Back to Dashboard
         </button>

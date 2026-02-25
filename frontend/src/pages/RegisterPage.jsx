@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import axios from "axios";
+import API_BASE from "../api/config";
 
 export default function RegisterPage() {
   const [data, setData] = useState({ name: "", email: "", password: "" });
@@ -11,7 +12,7 @@ export default function RegisterPage() {
     e.preventDefault();
     try {
       const res = await axios.post(
-        "http://localhost:5000/api/users/register",
+        `${API_BASE}/api/users/register`,
         data
       );
       localStorage.setItem("userInfo", JSON.stringify(res.data));

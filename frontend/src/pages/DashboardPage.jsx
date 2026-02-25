@@ -4,6 +4,7 @@ import InputForm from "../components/InputForm";
 
 import { motion } from "framer-motion";
 import axios from "axios";
+import API_BASE from "../api/config";
 import {
   BarChart,
   Bar,
@@ -22,7 +23,7 @@ import DashboardHeader from "../components/DashboardHeader";
 export default function DashboardPage() {
   const navigate = useNavigate();
   const [userInfo, setUserInfo] = useState(null);
-  
+
   const [history, setHistory] = useState([]);
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState("");
@@ -44,7 +45,7 @@ export default function DashboardPage() {
     const user = JSON.parse(stored);
     setUserInfo(user);
     fetchHistory(user);
-    fetchAlertConfig(); 
+    fetchAlertConfig();
   }, [navigate]);
 
   // -------------------------------
@@ -52,31 +53,31 @@ export default function DashboardPage() {
   // -------------------------------
 
 
- const fetchHistory = async (user) => {
-  setLoading(true);
-  try {
-    const config = { headers: { Authorization: `Bearer ${user.token}` } };
-    const res = await axios.get(
-      "http://localhost:5000/api/footprint/history",
-      config
-    );
+  const fetchHistory = async (user) => {
+    setLoading(true);
+    try {
+      const config = { headers: { Authorization: `Bearer ${user.token}` } };
+      const res = await axios.get(
+        `${API_BASE}/api/footprint/history`,
+        config
+      );
 
-    setHistory(res.data || []); // ✅ THIS WAS MISSING
-  } catch (err) {
-    console.error("❌ Fetch failed:", err);
-  } finally {
-    setLoading(false);
-  }
-};
+      setHistory(res.data || []); // ✅ THIS WAS MISSING
+    } catch (err) {
+      console.error("❌ Fetch failed:", err);
+    } finally {
+      setLoading(false);
+    }
+  };
 
-const fetchAlertConfig = async () => {
-  try {
-    const res = await axios.get("http://localhost:5000/api/alert/settings");
-    setAlertConfig(res.data);
-  } catch (err) {
-    console.error("Failed to fetch alert settings", err);
-  }
-};
+  const fetchAlertConfig = async () => {
+    try {
+      const res = await axios.get(`${API_BASE}/api/alert/settings`);
+      setAlertConfig(res.data);
+    } catch (err) {
+      console.error("Failed to fetch alert settings", err);
+    }
+  };
 
 
 
@@ -88,7 +89,7 @@ const fetchAlertConfig = async () => {
 
     async function checkEmailAlert() {
       try {
-        const res = await axios.post("http://localhost:5000/api/alert/check-total", {
+        const res = await axios.post(`${API_BASE}/api/alert/check-total`, {
           userId: userInfo._id,
           userEmail: userInfo.email,
         });
@@ -116,7 +117,7 @@ const fetchAlertConfig = async () => {
     try {
       const config = { headers: { Authorization: `Bearer ${userInfo.token}` } };
       await axios.post(
-        "http://localhost:5000/api/footprint/calculate",
+        `${API_BASE}/api/footprint/calculate`,
         form,
         config
       );
@@ -139,7 +140,7 @@ const fetchAlertConfig = async () => {
     if (!window.confirm(`Delete record for "${device}"?`)) return;
     try {
       const config = { headers: { Authorization: `Bearer ${userInfo.token}` } };
-      await axios.delete(`http://localhost:5000/api/footprint/${id}`, config);
+      await axios.delete(`${API_BASE}/api/footprint/${id}`, config);
 
       setMessage(`🗑️ "${device}" deleted successfully.`);
       fetchHistory(userInfo);
@@ -189,21 +190,21 @@ const fetchAlertConfig = async () => {
 
 
   const getRiskMessage = () => {
-  if (!alertConfig) return "Loading risk status...";
+    if (!alertConfig) return "Loading risk status...";
 
-  const { alert10, alert15 } = alertConfig;
-  const total = Number(totalCO2);
+    const { alert10, alert15 } = alertConfig;
+    const total = Number(totalCO2);
 
-  if (total < alert10) {
-    return `✅ Great job! Your carbon impact is below ${alert10} kg.`;
-  }
+    if (total < alert10) {
+      return `✅ Great job! Your carbon impact is below ${alert10} kg.`;
+    }
 
-  if (total >= alert10 && total < alert15) {
-    return `⚠️ Warning! You crossed ${alert10} kg emission limit.`;
-  }
+    if (total >= alert10 && total < alert15) {
+      return `⚠️ Warning! You crossed ${alert10} kg emission limit.`;
+    }
 
-  return `🚨 Critical! You crossed ${alert15} kg emission limit.`;
-};
+    return `🚨 Critical! You crossed ${alert15} kg emission limit.`;
+  };
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-green-50 via-blue-50 to-teal-50 p-6 relative overflow-hidden">
@@ -239,24 +240,24 @@ const fetchAlertConfig = async () => {
             <h3 className="text-lg font-semibold">🌍 Total CO₂ Emission</h3>
             <p className="text-3xl font-bold mt-1">{totalCO2} kg</p>
             <p className="text-sm opacity-80 mt-1">
-  {getRiskMessage()}
-</p>
+              {getRiskMessage()}
+            </p>
 
           </div>
         </motion.div>
       )}
-{/* FORM */}
-<motion.div
-  initial={{ opacity: 0, y: 80 }}
-  animate={{ opacity: 1, y: 0 }}
-  transition={{ duration: 0.6, ease: "easeOut" }}
-  className="mt-10 max-w-3xl mx-auto"
->
-  <InputForm
-    userInfo={userInfo}
-    onResult={() => fetchHistory(userInfo)}
-  />
-</motion.div>
+      {/* FORM */}
+      <motion.div
+        initial={{ opacity: 0, y: 80 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.6, ease: "easeOut" }}
+        className="mt-10 max-w-3xl mx-auto"
+      >
+        <InputForm
+          userInfo={userInfo}
+          onResult={() => fetchHistory(userInfo)}
+        />
+      </motion.div>
 
 
 
@@ -350,18 +351,18 @@ const fetchAlertConfig = async () => {
             >
               Predict CO₂
             </button>
-         
 
 
 
 
 
-              <button
-                onClick={() => navigate("/location-insights")}
-                className="bg-gradient-to-r from-green-500 to-teal-500 text-white px-4 py-2 rounded-lg shadow hover:scale-105 transition"
-              >
-                Location Insights
-              </button>
+
+            <button
+              onClick={() => navigate("/location-insights")}
+              className="bg-gradient-to-r from-green-500 to-teal-500 text-white px-4 py-2 rounded-lg shadow hover:scale-105 transition"
+            >
+              Location Insights
+            </button>
             <button
               onClick={() => navigate("/wastepage")}
               className="bg-gradient-to-r from-green-500 to-teal-500 text-white px-4 py-2 rounded-lg shadow hover:scale-105 transition"
@@ -385,9 +386,9 @@ const fetchAlertConfig = async () => {
             )}
           </div>
         </div>
-        
 
-        
+
+
 
         <div className="divide-y divide-gray-300">
           {history.length === 0 ? (
@@ -417,24 +418,24 @@ const fetchAlertConfig = async () => {
                     Delete
                   </button>
 
-                 
+
 
                 </div>
               </div>
             ))
           )}
           {history.length > 10 && (
-    <div className="flex justify-center mt-6">
-      <button
-        onClick={() => navigate("/history")}
-        className="bg-gradient-to-r from-green-500 to-teal-500
+            <div className="flex justify-center mt-6">
+              <button
+                onClick={() => navigate("/history")}
+                className="bg-gradient-to-r from-green-500 to-teal-500
                    text-white px-6 py-2 rounded-lg shadow-lg
                    hover:scale-105 transition"
-      >
-        View All History
-      </button>
-    </div>
-  )}
+              >
+                View All History
+              </button>
+            </div>
+          )}
 
 
         </div>

@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import axios from "axios";
 import DashboardHeader from "../components/DashboardHeader";
 import { useNavigate } from "react-router-dom";
+import API_BASE from "../api/config";
 
 /* ===============================
    DEVICE IMAGES
@@ -52,7 +53,7 @@ export default function AllHistoryPage() {
 
       try {
         const res = await axios.get(
-          "http://localhost:5000/api/footprint/history",
+          `${API_BASE}/api/footprint/history`,
           { headers: { Authorization: `Bearer ${userInfo.token}` } }
         );
         setHistory(res.data || []);
@@ -98,10 +99,9 @@ export default function AllHistoryPage() {
             key={mode}
             onClick={() => setViewMode(mode)}
             className={`px-4 py-1 rounded-md capitalize transition-all
-              ${
-                viewMode === mode
-                  ? "bg-green-600 text-white shadow"
-                  : "bg-white border hover:bg-green-50"
+              ${viewMode === mode
+                ? "bg-green-600 text-white shadow"
+                : "bg-white border hover:bg-green-50"
               }`}
           >
             {mode}
@@ -123,9 +123,8 @@ export default function AllHistoryPage() {
               key={item._id}
               className="relative transition-all duration-500"
               style={{
-                transform: `translateY(${index * 6}px) rotate(${
-                  index % 2 === 0 ? "-1.8deg" : "1.8deg"
-                })`,
+                transform: `translateY(${index * 6}px) rotate(${index % 2 === 0 ? "-1.8deg" : "1.8deg"
+                  })`,
                 zIndex: history.length - index,
               }}
             >
@@ -257,13 +256,13 @@ export default function AllHistoryPage() {
             <div className="grid grid-cols-2 gap-4">
               {(deviceImageVariants[selectedDevice] ||
                 deviceImageVariants.other).map((img, i) => (
-                <img
-                  key={i}
-                  src={img}
-                  alt="device"
-                  className="h-32 w-full object-contain border rounded-lg"
-                />
-              ))}
+                  <img
+                    key={i}
+                    src={img}
+                    alt="device"
+                    className="h-32 w-full object-contain border rounded-lg"
+                  />
+                ))}
             </div>
 
             <p className="text-xs text-gray-400 text-center mt-4">

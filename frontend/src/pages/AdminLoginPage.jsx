@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
+import API_BASE from "../api/config";
 
 export default function AdminLoginPage() {
   const navigate = useNavigate();
@@ -9,7 +10,7 @@ export default function AdminLoginPage() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      const { data } = await axios.post("http://localhost:5000/api/admin/auth/login", form);
+      const { data } = await axios.post(`${API_BASE}/api/admin/auth/login`, form);
       localStorage.setItem("adminInfo", JSON.stringify(data));
       alert("Admin login successful!");
       navigate("/admin/dashboard");

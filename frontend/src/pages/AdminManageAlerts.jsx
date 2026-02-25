@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
+import API_BASE from "../api/config";
 
 export default function AdminManageAlerts() {
   const [alert10, setAlert10] = useState(10);
@@ -13,7 +14,7 @@ export default function AdminManageAlerts() {
 
   const loadSettings = async () => {
     try {
-      const res = await axios.get("http://localhost:5000/api/alert/settings");
+      const res = await axios.get(`${API_BASE}/api/alert/settings`);
 
       setAlert10(res.data.alert10);
       setAlert15(res.data.alert15);
@@ -25,7 +26,7 @@ export default function AdminManageAlerts() {
 
   const saveSettings = async () => {
     try {
-      await axios.post("http://localhost:5000/api/alert/settings", {
+      await axios.post(`${API_BASE}/api/alert/settings`, {
         alert10,
         alert15,
         enabled,
@@ -41,7 +42,7 @@ export default function AdminManageAlerts() {
   return (
     <div className="min-h-screen bg-gradient-to-br border-3 border-purple-700 rounded-2xl from-green-50 to-green-200 p-6 flex justify-center">
       <div className="w-full max-w-xl">
-        
+
         <h1 className="text-3xl font-extrabold text-green-700 mb-6 text-center">
           🔔 Manage Alert Settings
         </h1>

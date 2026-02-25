@@ -2,6 +2,7 @@ import React, { useEffect, useState, useMemo } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import AdminNavbar from "../components/AdminNavbar";
+import API_BASE from "../api/config";
 
 export default function AdminDashboard() {
   const [users, setUsers] = useState([]);
@@ -31,9 +32,9 @@ export default function AdminDashboard() {
     try {
       const config = { headers: { Authorization: `Bearer ${adminInfo.token}` } };
       const [userRes, footRes, logRes] = await Promise.all([
-        axios.get("http://localhost:5000/api/admin/users", config),
-        axios.get("http://localhost:5000/api/admin/footprints", config),
-        axios.get("http://localhost:5000/api/admin/activity", config),
+        axios.get(`${API_BASE}/api/admin/users`, config),
+        axios.get(`${API_BASE}/api/admin/footprints`, config),
+        axios.get(`${API_BASE}/api/admin/activity`, config),
       ]);
       setUsers(userRes.data);
       setFootprints(footRes.data);
@@ -49,7 +50,7 @@ export default function AdminDashboard() {
   const logActivity = async (action, target) => {
     try {
       const config = { headers: { Authorization: `Bearer ${adminInfo.token}` } };
-      await axios.post("http://localhost:5000/api/admin/activity/log", { action, target }, config);
+      await axios.post(`${API_BASE}/api/admin/activity/log`, { action, target }, config);
     } catch (err) {
       console.error("⚠ Failed to log activity:", err.message);
     }
@@ -59,7 +60,7 @@ export default function AdminDashboard() {
     if (!window.confirm(`Delete user "${name}"?`)) return;
     try {
       const config = { headers: { Authorization: `Bearer ${adminInfo.token}` } };
-      await axios.delete(`http://localhost:5000/api/admin/users/${id}`, config);
+      await axios.delete(`${API_BASE}/api/admin/users/${id}`, config);
       await logActivity("Deleted User", `User: ${name}`);
       setMessage(`✅ User "${name}" deleted successfully.`);
       fetchData();
@@ -73,7 +74,7 @@ export default function AdminDashboard() {
     if (!window.confirm(`Delete record for "${device}"?`)) return;
     try {
       const config = { headers: { Authorization: `Bearer ${adminInfo.token}` } };
-      await axios.delete(`http://localhost:5000/api/admin/footprints/${id}`, config);
+      await axios.delete(`${API_BASE}/api/admin/footprints/${id}`, config);
       await logActivity("Deleted Record", `Device: ${device}`);
       setMessage(`✅ Record for "${device}" deleted.`);
       fetchData();
@@ -87,7 +88,7 @@ export default function AdminDashboard() {
     if (!window.confirm("Clear all activity logs?")) return;
     try {
       const config = { headers: { Authorization: `Bearer ${adminInfo.token}` } };
-      await axios.delete("http://localhost:5000/api/admin/activity/clear", config);
+      await axios.delete(`${API_BASE}/api/admin/activity/clear`, config);
       setMessage("🗑 All logs cleared.");
       fetchData();
     } catch (err) {
@@ -113,37 +114,37 @@ export default function AdminDashboard() {
       : "N/A";
   }, [footprints]);
 
-const filteredFootprints = useMemo(() => {
-  let data = [...footprints];
+  const filteredFootprints = useMemo(() => {
+    let data = [...footprints];
 
-  // ✅ FILTER BY SELECTED USER (IMPORTANT)
-  if (selectedUser) {
-    data = data.filter(
-      (f) => String(f.user?._id) === String(selectedUser._id)
+    // ✅ FILTER BY SELECTED USER (IMPORTANT)
+    if (selectedUser) {
+      data = data.filter(
+        (f) => String(f.user?._id) === String(selectedUser._id)
+      );
+    }
+
+    // 🔍 SEARCH BY DEVICE
+    if (searchTerm) {
+      data = data.filter((f) =>
+        f.deviceType.toLowerCase().includes(searchTerm.toLowerCase())
+      );
+    }
+
+    // 🎯 FILTER BY DEVICE DROPDOWN
+    if (filterDevice) {
+      data = data.filter((f) => f.deviceType === filterDevice);
+    }
+
+    // 🔃 SORT BY CO₂
+    data.sort((a, b) =>
+      sortOrder === "asc"
+        ? a.co2Emission - b.co2Emission
+        : b.co2Emission - a.co2Emission
     );
-  }
 
-  // 🔍 SEARCH BY DEVICE
-  if (searchTerm) {
-    data = data.filter((f) =>
-      f.deviceType.toLowerCase().includes(searchTerm.toLowerCase())
-    );
-  }
-
-  // 🎯 FILTER BY DEVICE DROPDOWN
-  if (filterDevice) {
-    data = data.filter((f) => f.deviceType === filterDevice);
-  }
-
-  // 🔃 SORT BY CO₂
-  data.sort((a, b) =>
-    sortOrder === "asc"
-      ? a.co2Emission - b.co2Emission
-      : b.co2Emission - a.co2Emission
-  );
-
-  return data;
-}, [footprints, selectedUser, searchTerm, filterDevice, sortOrder]);
+    return data;
+  }, [footprints, selectedUser, searchTerm, filterDevice, sortOrder]);
 
 
   const deviceOptions = [...new Set(footprints.map((f) => f.deviceType))];
@@ -163,17 +164,16 @@ const filteredFootprints = useMemo(() => {
             Exit
           </button>
 
-          
+
         </div>
 
         {/* Message */}
         {message && (
           <div
-            className={`text-center py-3 rounded-md font-medium ${
-              message.includes("✅")
+            className={`text-center py-3 rounded-md font-medium ${message.includes("✅")
                 ? "bg-green-100 text-green-800 border border-green-400"
                 : "bg-red-100 text-red-700 border border-red-400"
-            }`}
+              }`}
           >
             {message}
           </div>
@@ -250,11 +250,11 @@ const filteredFootprints = useMemo(() => {
                     className="text-center border-b hover:bg-green-50 transition"
                   >
                     <td
-  className="p-2 text-green-700 font-medium cursor-pointer hover:underline"
-  onClick={() => setSelectedUser(u)}
->
-  {u.name}
-</td>
+                      className="p-2 text-green-700 font-medium cursor-pointer hover:underline"
+                      onClick={() => setSelectedUser(u)}
+                    >
+                      {u.name}
+                    </td>
 
                     <td className="p-2">{u.email}</td>
                     <td className="p-2">{u.isAdmin ? "✅" : "❌"}</td>
@@ -275,85 +275,85 @@ const filteredFootprints = useMemo(() => {
           )}
         </div>
 
-       {/* CO₂ Records */}
-<div className="bg-white p-6 rounded-xl shadow-md overflow-x-auto">
-  <h2 className="text-xl font-semibold text-green-700 mb-4">
-    🌿 All CO₂ Records
-  </h2>
+        {/* CO₂ Records */}
+        <div className="bg-white p-6 rounded-xl shadow-md overflow-x-auto">
+          <h2 className="text-xl font-semibold text-green-700 mb-4">
+            🌿 All CO₂ Records
+          </h2>
 
-  {/* ✅ Selected User Indicator */}
-  {selectedUser && (
-    <div className="mb-4 flex items-center gap-3">
-      <span className="text-sm bg-green-100 text-green-800 px-3 py-1 rounded-full">
-        Viewing records for: <b>{selectedUser.name}</b>
-      </span>
-      <button
-        onClick={() => setSelectedUser(null)}
-        className="text-sm text-red-600 hover:underline"
-      >
-        Clear Filter
-      </button>
-    </div>
-  )}
-
-  {filteredFootprints.length === 0 ? (
-    <p className="text-center text-gray-500 py-6">
-      No CO₂ records found.
-    </p>
-  ) : (
-    <table className="w-full border border-gray-300 text-sm">
-      <thead className="bg-green-700 text-white">
-        <tr>
-          <th className="p-3 text-left">User</th>
-          <th className="p-3 text-left">Device</th>
-          <th className="p-3">Power (W)</th>
-          <th className="p-3">Usage (hr)</th>
-          <th className="p-3">CO₂ (kg)</th>
-          <th className="p-3">Created</th>
-          <th className="p-3">Updated</th>
-          <th className="p-3">Action</th>
-        </tr>
-      </thead>
-
-      <tbody>
-        {filteredFootprints.map((f) => (
-          <tr
-            key={f._id}
-            className="border-b hover:bg-green-50 transition"
-          >
-            <td className="p-2 font-medium text-green-700">
-              {f.user?.name || "—"}
-            </td>
-            <td className="p-2 capitalize">{f.deviceType}</td>
-            <td className="p-2 text-center">{f.powerRating}</td>
-            <td className="p-2 text-center">{f.usageHours}</td>
-            <td className="p-2 text-center">
-              {f.co2Emission?.toFixed(2) || "0.00"}
-            </td>
-            <td className="p-2 text-center">
-              {f.createdAt
-                ? new Date(f.createdAt).toLocaleDateString()
-                : "—"}
-            </td>
-            <td className="p-2 text-center">
-              {f.updatedAt
-                ? new Date(f.updatedAt).toLocaleDateString()
-                : "—"}
-            </td>
-            <td className="p-2 text-center">
+          {/* ✅ Selected User Indicator */}
+          {selectedUser && (
+            <div className="mb-4 flex items-center gap-3">
+              <span className="text-sm bg-green-100 text-green-800 px-3 py-1 rounded-full">
+                Viewing records for: <b>{selectedUser.name}</b>
+              </span>
               <button
-                onClick={() => handleDeleteRecord(f._id, f.deviceType)}
-                className="bg-red-100 text-red-700 px-3 py-1 rounded hover:bg-red-200 transition text-sm"
+                onClick={() => setSelectedUser(null)}
+                className="text-sm text-red-600 hover:underline"
               >
-                Delete
+                Clear Filter
               </button>
-            </td>
-          </tr>
-        ))}
-      </tbody>
-    </table>
-  )}
-</div>
+            </div>
+          )}
+
+          {filteredFootprints.length === 0 ? (
+            <p className="text-center text-gray-500 py-6">
+              No CO₂ records found.
+            </p>
+          ) : (
+            <table className="w-full border border-gray-300 text-sm">
+              <thead className="bg-green-700 text-white">
+                <tr>
+                  <th className="p-3 text-left">User</th>
+                  <th className="p-3 text-left">Device</th>
+                  <th className="p-3">Power (W)</th>
+                  <th className="p-3">Usage (hr)</th>
+                  <th className="p-3">CO₂ (kg)</th>
+                  <th className="p-3">Created</th>
+                  <th className="p-3">Updated</th>
+                  <th className="p-3">Action</th>
+                </tr>
+              </thead>
+
+              <tbody>
+                {filteredFootprints.map((f) => (
+                  <tr
+                    key={f._id}
+                    className="border-b hover:bg-green-50 transition"
+                  >
+                    <td className="p-2 font-medium text-green-700">
+                      {f.user?.name || "—"}
+                    </td>
+                    <td className="p-2 capitalize">{f.deviceType}</td>
+                    <td className="p-2 text-center">{f.powerRating}</td>
+                    <td className="p-2 text-center">{f.usageHours}</td>
+                    <td className="p-2 text-center">
+                      {f.co2Emission?.toFixed(2) || "0.00"}
+                    </td>
+                    <td className="p-2 text-center">
+                      {f.createdAt
+                        ? new Date(f.createdAt).toLocaleDateString()
+                        : "—"}
+                    </td>
+                    <td className="p-2 text-center">
+                      {f.updatedAt
+                        ? new Date(f.updatedAt).toLocaleDateString()
+                        : "—"}
+                    </td>
+                    <td className="p-2 text-center">
+                      <button
+                        onClick={() => handleDeleteRecord(f._id, f.deviceType)}
+                        className="bg-red-100 text-red-700 px-3 py-1 rounded hover:bg-red-200 transition text-sm"
+                      >
+                        Delete
+                      </button>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          )}
+        </div>
 
 
         {/* Activity Log */}

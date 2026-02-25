@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { motion } from "framer-motion";
 import axios from "axios";
+import API_BASE from "../api/config";
 
 export default function LoginPage() {
   const [data, setData] = useState({ email: "", password: "" });
@@ -10,7 +11,7 @@ export default function LoginPage() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      const res = await axios.post("http://localhost:5000/api/users/login", data);
+      const res = await axios.post(`${API_BASE}/api/users/login`, data);
       localStorage.setItem("userInfo", JSON.stringify(res.data));
       alert("Login Successful!");
       window.location.href = "/dashboard";

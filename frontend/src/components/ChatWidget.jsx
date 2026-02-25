@@ -1,4 +1,5 @@
 import React, { useEffect, useRef, useState } from "react";
+import API_BASE from "../api/config";
 
 export default function ChatWidget() {
   const [open, setOpen] = useState(false);
@@ -10,17 +11,17 @@ export default function ChatWidget() {
 
   const scrollRef = useRef(null);
 
-  
+
   const userInfo = JSON.parse(localStorage.getItem("userInfo") || "null");
   const userId = userInfo?._id || null;
 
- 
+
   if (!userInfo) return null;
 
- 
+
   useEffect(() => {
     if (open && userId) {
-      fetch(`http://localhost:5000/api/chat/history/${userId}`)
+      fetch(`${API_BASE}/api/chat/history/${userId}`)
         .then((r) => r.json())
         .then((d) => {
           if (d.history) {
@@ -40,7 +41,7 @@ export default function ChatWidget() {
     }
   }, [messages, options, loading]);
 
-  
+
   const sendMessage = async (customText = null) => {
     const text = customText || input.trim();
     if (!text) return;
@@ -51,7 +52,7 @@ export default function ChatWidget() {
     setLoading(true);
 
     try {
-      const res = await fetch("http://localhost:5000/api/chat", {
+      const res = await fetch(`${API_BASE}/api/chat`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ message: text, userId }),
@@ -84,7 +85,7 @@ export default function ChatWidget() {
 
   return (
     <>
-     
+
       {!open && (
         <button
           onClick={() => setOpen(true)}
@@ -94,12 +95,12 @@ export default function ChatWidget() {
         </button>
       )}
 
-    
+
       {open && (
         <div
           className={`fixed bottom-6 right-6 w-80 sm:w-96 max-h-[70vh] rounded-3xl shadow-2xl flex flex-col p-3 z-[9999] ${glass}`}
         >
-          
+
           <div className="flex items-center justify-between mb-2">
             <div className="font-semibold text-lg">Your Assistant</div>
 
@@ -115,7 +116,7 @@ export default function ChatWidget() {
             </button>
           </div>
 
-         
+
           <div ref={scrollRef} className="flex-1 overflow-y-auto space-y-3 pr-1">
 
             {messages.map((m, i) => (
@@ -124,20 +125,19 @@ export default function ChatWidget() {
                 className={`flex ${m.sender === "user" ? "justify-end" : "justify-start"}`}
               >
                 <div
-                  className={`px-3 py-2 rounded-xl shadow max-w-[80%] ${
-                    m.sender === "user"
+                  className={`px-3 py-2 rounded-xl shadow max-w-[80%] ${m.sender === "user"
                       ? "bg-orange-500 text-white"
                       : darkMode
-                      ? "bg-white/20 text-white border border-white/10"
-                      : "bg-gray-100 text-gray-800"
-                  }`}
+                        ? "bg-white/20 text-white border border-white/10"
+                        : "bg-gray-100 text-gray-800"
+                    }`}
                 >
                   {m.text}
                 </div>
               </div>
             ))}
 
-            
+
             {loading && (
               <div className="flex justify-start">
                 <div className="px-3 py-2 bg-gray-200 rounded-xl">
@@ -150,7 +150,7 @@ export default function ChatWidget() {
               </div>
             )}
 
-            
+
             {options.length > 0 && (
               <div className="flex flex-wrap gap-2 py-2">
                 {options.map((opt, idx) => (
@@ -166,7 +166,7 @@ export default function ChatWidget() {
             )}
           </div>
 
-    
+
           <div className="mt-2">
             <textarea
               rows={1}
@@ -174,11 +174,10 @@ export default function ChatWidget() {
               onChange={(e) => setInput(e.target.value)}
               onKeyDown={onEnter}
               placeholder="Type here..."
-              className={`w-full resize-none px-3 py-2 rounded-xl border text-sm ${
-                darkMode
+              className={`w-full resize-none px-3 py-2 rounded-xl border text-sm ${darkMode
                   ? "bg-white/20 text-white border-white/20"
                   : "bg-white border-orange-300"
-              }`}
+                }`}
             />
 
             <div className="flex justify-between mt-2">

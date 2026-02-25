@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
+import API_BASE from "../api/config";
 
 export default function WastePage() {
   const [form, setForm] = useState({
@@ -20,11 +21,11 @@ export default function WastePage() {
 
 
   const currentYear = new Date().getFullYear();
-const years = [];
+  const years = [];
 
-for (let year = currentYear; year >= 2020; year--) {
-  years.push(year.toString());
-}
+  for (let year = currentYear; year >= 2020; year--) {
+    years.push(year.toString());
+  }
 
   // -----------------------------
   // HANDLE SUBMIT
@@ -48,7 +49,7 @@ for (let year = currentYear; year >= 2020; year--) {
       };
 
       await axios.post(
-        "http://localhost:5000/api/waste/calculate",
+        `${API_BASE}/api/waste/calculate`,
         form,
         config
       );
@@ -84,7 +85,7 @@ for (let year = currentYear; year >= 2020; year--) {
     try {
       const config = { headers: { Authorization: `Bearer ${token}` } };
       const res = await axios.get(
-        "http://localhost:5000/api/waste/history",
+        `${API_BASE}/api/waste/history`,
         config
       );
       setRecords(res.data);
@@ -105,7 +106,7 @@ for (let year = currentYear; year >= 2020; year--) {
 
     try {
       const config = { headers: { Authorization: `Bearer ${token}` } };
-      await axios.delete(`http://localhost:5000/api/waste/${id}`, config);
+      await axios.delete(`${API_BASE}/api/waste/${id}`, config);
       fetchRecords();
     } catch (err) {
       alert("Error deleting record");
@@ -139,8 +140,8 @@ for (let year = currentYear; year >= 2020; year--) {
             label: "Month",
             type: "select",
             options: [
-              "January","February","March","April","May","June",
-              "July","August","September","October","November","December",
+              "January", "February", "March", "April", "May", "June",
+              "July", "August", "September", "October", "November", "December",
             ],
           },
           {
@@ -244,7 +245,7 @@ for (let year = currentYear; year >= 2020; year--) {
             {records.map((r) => (
               <li key={r._id} className="py-3 flex justify-between items-center">
                 <div>
-                  <strong>{r.month}</strong> {r.year} – {r.wasteType}  
+                  <strong>{r.month}</strong> {r.year} – {r.wasteType}
                   ({r.amount} {r.unit}) →{" "}
                   <span className="text-green-600 font-medium">
                     {r.co2Emission.toFixed(2)} kg CO₂

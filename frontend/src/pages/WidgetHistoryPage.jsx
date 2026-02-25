@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import axios from "axios";
 import { motion, AnimatePresence } from "framer-motion";
 import DashboardHeader from "../components/DashboardHeader";
+import API_BASE from "../api/config";
 
 export default function WidgetHistoryPage() {
   const [widgetData, setWidgetData] = useState([]);
@@ -12,7 +13,7 @@ export default function WidgetHistoryPage() {
     async function fetchWidgetHistory() {
       try {
         const res = await axios.get(
-          "http://localhost:5000/api/emission/widget"
+          `${API_BASE}/api/emission/widget`
         );
         setWidgetData(res.data || []);
       } catch (err) {

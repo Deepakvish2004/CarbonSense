@@ -1,5 +1,6 @@
 // src/api/wasteAPI.js
 import axios from "axios";
+import API_BASE from "./config";
 
 export const saveWasteRecord = async (formData, token) => {
   try {
@@ -11,7 +12,7 @@ export const saveWasteRecord = async (formData, token) => {
     };
 
     const { data } = await axios.post(
-      "http://localhost:5000/api/waste/calculate",
+      `${API_BASE}/api/waste/calculate`,
       formData,
       config
     );

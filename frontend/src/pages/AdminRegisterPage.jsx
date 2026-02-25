@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import axios from "axios";
 import { useNavigate, Link } from "react-router-dom";
+import API_BASE from "../api/config";
 
 export default function AdminRegisterPage() {
   const navigate = useNavigate();
@@ -20,7 +21,7 @@ export default function AdminRegisterPage() {
     }
 
     try {
-      const { data } = await axios.post("http://localhost:5000/api/admin/auth/register", {
+      const { data } = await axios.post(`${API_BASE}/api/admin/auth/register`, {
         name: form.name,
         email: form.email,
         password: form.password,

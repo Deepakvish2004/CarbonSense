@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import { MapContainer, TileLayer, Marker, Popup } from "react-leaflet";
 import "leaflet/dist/leaflet.css";
 import L from "leaflet";
+import API_BASE from "../api/config";
 
 /* ---------------- LEAFLET ICON FIX ---------------- */
 delete L.Icon.Default.prototype._getIconUrl;
@@ -25,8 +26,6 @@ export default function LocationInsights() {
   const [aiInsight, setAiInsight] = useState("");
 
   const WEATHER_KEY = import.meta.env.VITE_WEATHER_KEY;
-  const backendBase =
-    import.meta.env.VITE_BACKEND_URL || "http://localhost:5000";
 
   /* ---------------- LOAD REPORTS ONCE ---------------- */
   useEffect(() => {
@@ -60,8 +59,8 @@ export default function LocationInsights() {
       if (C >= r.Clow && C <= r.Chigh) {
         return Math.round(
           ((r.Ihigh - r.Ilow) / (r.Chigh - r.Clow)) *
-            (C - r.Clow) +
-            r.Ilow
+          (C - r.Clow) +
+          r.Ilow
         );
       }
     }
@@ -172,7 +171,7 @@ export default function LocationInsights() {
 
     const user = JSON.parse(localStorage.getItem("userInfo") || "null");
 
-    const res = await fetch(`${backendBase}/api/location/report`, {
+    const res = await fetch(`${API_BASE}/api/location/report`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ userId: user?._id, ...location }),
@@ -191,7 +190,7 @@ export default function LocationInsights() {
     if (!user?._id) return;
 
     const res = await fetch(
-      `${backendBase}/api/location/reports/${user._id}`
+      `${API_BASE}/api/location/reports/${user._id}`
     );
     const data = await res.json();
     if (data.success) setReports(data.reports);
@@ -199,7 +198,7 @@ export default function LocationInsights() {
 
   /* ---------------- DELETE REPORT ---------------- */
   const deleteReport = async (id) => {
-    await fetch(`${backendBase}/api/location/report/${id}`, {
+    await fetch(`${API_BASE}/api/location/report/${id}`, {
       method: "DELETE",
     });
     setReports((prev) => prev.filter((r) => r._id !== id));
