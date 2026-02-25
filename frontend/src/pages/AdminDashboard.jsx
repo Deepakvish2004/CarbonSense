@@ -61,7 +61,7 @@ export default function AdminDashboard() {
     try {
       const config = { headers: { Authorization: `Bearer ${adminInfo.token}` } };
       await axios.delete(`${API_BASE}/api/admin/users/${id}`, config);
-      await logActivity("Deleted User", `User: ${name}`);
+      await logActivity("Deleted User", `👤 User: ${name}`);
       setMessage(`✅ User "${name}" deleted successfully.`);
       fetchData();
     } catch (err) {
@@ -70,12 +70,12 @@ export default function AdminDashboard() {
     }
   };
 
-  const handleDeleteRecord = async (id, device) => {
+  const handleDeleteRecord = async (id, device, userName) => {
     if (!window.confirm(`Delete record for "${device}"?`)) return;
     try {
       const config = { headers: { Authorization: `Bearer ${adminInfo.token}` } };
       await axios.delete(`${API_BASE}/api/admin/footprints/${id}`, config);
-      await logActivity("Deleted Record", `Device: ${device}`);
+      await logActivity("Deleted Record", `💻 Device: ${device} | 👤 User: ${userName || "Unknown"}`);
       setMessage(`✅ Record for "${device}" deleted.`);
       fetchData();
     } catch (err) {
@@ -354,7 +354,7 @@ export default function AdminDashboard() {
                     </td>
                     <td className="p-2 text-center">
                       <button
-                        onClick={() => handleDeleteRecord(f._id, f.deviceType)}
+                        onClick={() => handleDeleteRecord(f._id, f.deviceType, f.user?.name)}
                         className="bg-red-100 text-red-700 px-3 py-1 rounded hover:bg-red-200 transition text-sm"
                       >
                         Delete
@@ -377,12 +377,20 @@ export default function AdminDashboard() {
                 {activities.length} logs
               </span>
             </div>
-            <button
-              onClick={handleClearLogs}
-              className="bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700 transition text-sm font-medium"
-            >
-              🗑 Clear All Logs
-            </button>
+            <div className="flex gap-2">
+              <button
+                onClick={fetchData}
+                className="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600 transition text-sm font-medium"
+              >
+                🔄 Restore
+              </button>
+              <button
+                onClick={handleClearLogs}
+                className="bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700 transition text-sm font-medium"
+              >
+                🗑 Clear All
+              </button>
+            </div>
           </div>
 
           {activities.length === 0 ? (
@@ -406,11 +414,18 @@ export default function AdminDashboard() {
                   >
                     <td className="p-3 font-medium text-green-700">{a.admin?.name || "—"}</td>
                     <td className="p-3">
-                      <span className="bg-blue-100 text-blue-700 text-xs px-2 py-1 rounded-full font-medium">
+                      <span className={`text-xs px-2 py-1 rounded-full font-medium ${a.action.includes("Deleted") ? "bg-red-100 text-red-700" : "bg-blue-100 text-blue-700"
+                        }`}>
                         {a.action}
                       </span>
                     </td>
-                    <td className="p-3 text-gray-600">{a.target}</td>
+                    <td className="p-3 text-gray-600">
+                      <div className="flex flex-col gap-1">
+                        {a.target?.split(" | ").map((part, i) => (
+                          <span key={i} className="text-xs bg-gray-100 px-2 py-0.5 rounded-md">{part}</span>
+                        ))}
+                      </div>
+                    </td>
                     <td className="p-3 text-gray-500 text-xs">
                       {new Date(a.createdAt).toLocaleString()}
                     </td>

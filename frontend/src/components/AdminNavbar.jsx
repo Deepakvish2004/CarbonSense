@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { Menu, X, BarChart3, LayoutDashboard, LogOut } from "lucide-react"; // icons
+import { Menu, X, BarChart3, LayoutDashboard, LogOut, Users } from "lucide-react"; // icons
 import { motion } from "framer-motion";
 
 export default function AdminNavbar() {
@@ -19,9 +19,10 @@ export default function AdminNavbar() {
   const links = [
     { label: "Dashboard", icon: <LayoutDashboard size={18} />, path: "/admin/dashboard" },
     { label: "Reports", icon: <BarChart3 size={18} />, path: "/reports" },
-    { label: " Manage Alert", icon: <BarChart3 size={18} />, path: "/admin/alerts" },
-    
-    
+    { label: "Manage Alerts", icon: <BarChart3 size={18} />, path: "/admin/alerts" },
+    { label: "Management", icon: <Users size={18} />, path: "/admin/management" },
+
+
 
   ];
 
