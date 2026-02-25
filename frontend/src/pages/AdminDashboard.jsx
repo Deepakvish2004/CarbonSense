@@ -8,6 +8,7 @@ export default function AdminDashboard() {
   const [users, setUsers] = useState([]);
   const [footprints, setFootprints] = useState([]);
   const [activities, setActivities] = useState([]);
+  const [trashedLogs, setTrashedLogs] = useState([]); // stores deleted logs for restore
   const [searchTerm, setSearchTerm] = useState("");
   const [filterDevice, setFilterDevice] = useState("");
   const [sortOrder, setSortOrder] = useState("desc");
@@ -99,11 +100,38 @@ export default function AdminDashboard() {
   const handleDeleteLog = async (id) => {
     try {
       const config = { headers: { Authorization: `Bearer ${adminInfo.token}` } };
+      // Save log data BEFORE deleting so we can restore it
+      const logToDelete = activities.find((a) => a._id === id);
       await axios.delete(`${API_BASE}/api/admin/activity/${id}`, config);
       setActivities((prev) => prev.filter((a) => a._id !== id));
+      if (logToDelete) {
+        setTrashedLogs((prev) => [...prev, logToDelete]);
+      }
     } catch (err) {
       console.error("❌ Delete log error:", err.response?.data || err.message);
       setMessage("❌ Failed to delete log.");
+    }
+  };
+
+  const handleRestoreLog = async () => {
+    if (trashedLogs.length === 0) return;
+    try {
+      const config = { headers: { Authorization: `Bearer ${adminInfo.token}` } };
+      const last = trashedLogs[trashedLogs.length - 1];
+      // Re-create the log in the backend
+      await axios.post(
+        `${API_BASE}/api/admin/activity/log`,
+        { action: last.action, target: last.target },
+        config
+      );
+      // Remove from trash and refresh
+      setTrashedLogs((prev) => prev.slice(0, -1));
+      setMessage("✅ Log restored successfully.");
+      setTimeout(() => setMessage(""), 2500);
+      fetchData();
+    } catch (err) {
+      console.error("❌ Restore log error:", err.response?.data || err.message);
+      setMessage("❌ Failed to restore log.");
     }
   };
 
@@ -377,12 +405,21 @@ export default function AdminDashboard() {
                 {activities.length} logs
               </span>
             </div>
-            <div className="flex gap-2">
+            <div className="flex gap-2 items-center">
               <button
-                onClick={fetchData}
-                className="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600 transition text-sm font-medium"
+                onClick={handleRestoreLog}
+                disabled={trashedLogs.length === 0}
+                className={`relative flex items-center gap-1 px-4 py-2 rounded-lg transition text-sm font-medium ${trashedLogs.length > 0
+                    ? "bg-blue-500 text-white hover:bg-blue-600 cursor-pointer"
+                    : "bg-gray-200 text-gray-400 cursor-not-allowed"
+                  }`}
               >
                 🔄 Restore
+                {trashedLogs.length > 0 && (
+                  <span className="absolute -top-2 -right-2 bg-orange-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center font-bold">
+                    {trashedLogs.length}
+                  </span>
+                )}
               </button>
               <button
                 onClick={handleClearLogs}
