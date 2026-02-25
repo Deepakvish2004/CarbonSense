@@ -1,8 +1,7 @@
 import express from "express";
 import dotenv from "dotenv";
-import cors from "cors";
 
-// Load env
+// Load env FIRST before anything else
 dotenv.config();
 
 // DB
@@ -29,34 +28,38 @@ import emissionWidgetRoutes from "./routes/emissionWidgetRoutes.js";
 
 const app = express();
 
-// Middleware
-const allowedOrigins = [
-  process.env.FRONTEND_URL,
-  "https://carbon-sense-64sa.vercel.app",  // production frontend
+// ─────────────────────────────────────────────────────────────
+//  CORS — manual middleware (works on ALL Vercel serverless)
+// ─────────────────────────────────────────────────────────────
+const ALLOWED_ORIGINS = [
+  "https://carbon-sense-64sa.vercel.app",
   "http://localhost:5173",
+  process.env.FRONTEND_URL,
 ].filter(Boolean);
 
-const corsOptions = {
-  origin: (origin, callback) => {
-    if (!origin || allowedOrigins.includes(origin)) {
-      callback(null, true);
-    } else {
-      callback(new Error(`CORS blocked for origin: ${origin}`));
-    }
-  },
-  credentials: true,
-  methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
-  allowedHeaders: ["Content-Type", "Authorization"],
-};
+app.use((req, res, next) => {
+  const origin = req.headers.origin;
 
-// Handle OPTIONS preflight for ALL routes FIRST
-app.options("*", cors(corsOptions));
+  if (!origin || ALLOWED_ORIGINS.includes(origin)) {
+    res.setHeader("Access-Control-Allow-Origin", origin || "*");
+  }
 
-app.use(cors(corsOptions));
+  res.setHeader("Access-Control-Allow-Credentials", "true");
+  res.setHeader("Access-Control-Allow-Methods", "GET,POST,PUT,DELETE,OPTIONS");
+  res.setHeader("Access-Control-Allow-Headers", "Content-Type,Authorization");
+
+  // Respond immediately to preflight
+  if (req.method === "OPTIONS") {
+    return res.status(204).end();
+  }
+
+  next();
+});
+
 app.use(express.json());
 
 // ---------------- API ROUTES ----------------
-app.use("/api/users", userRoutes);          // ✅ USER (alerts, login, register)
+app.use("/api/users", userRoutes);
 app.use("/api/admin/auth", adminAuthRoutes);
 app.use("/api/admin", adminRoutes);
 app.use("/api/admin/activity", adminActivityRoutes);
@@ -76,9 +79,9 @@ app.use("/api/location", locationReportRoutes);
 app.use("/api/emission", emissionRoutes);
 app.use("/api/emission-widget", emissionWidgetRoutes);
 
-// Test route
+// Health check
 app.get("/", (req, res) => {
-  res.send("API running successfully");
+  res.send("API running successfully ✅");
 });
 
 // Server
