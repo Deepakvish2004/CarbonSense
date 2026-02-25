@@ -96,6 +96,18 @@ export default function AdminDashboard() {
     }
   };
 
+  const handleDeleteLog = async (id) => {
+    try {
+      const config = { headers: { Authorization: `Bearer ${adminInfo.token}` } };
+      await axios.delete(`${API_BASE}/api/admin/activity/${id}`, config);
+      setActivities((prev) => prev.filter((a) => a._id !== id));
+    } catch (err) {
+      console.error("❌ Delete log error:", err.response?.data || err.message);
+      setMessage("❌ Failed to delete log.");
+    }
+  };
+
+
   const totalCO2 = useMemo(
     () => footprints.reduce((sum, f) => sum + (f.co2Emission || 0), 0).toFixed(2),
     [footprints]
@@ -171,8 +183,8 @@ export default function AdminDashboard() {
         {message && (
           <div
             className={`text-center py-3 rounded-md font-medium ${message.includes("✅")
-                ? "bg-green-100 text-green-800 border border-green-400"
-                : "bg-red-100 text-red-700 border border-red-400"
+              ? "bg-green-100 text-green-800 border border-green-400"
+              : "bg-red-100 text-red-700 border border-red-400"
               }`}
           >
             {message}
@@ -359,37 +371,57 @@ export default function AdminDashboard() {
         {/* Activity Log */}
         <div className="bg-white p-6 rounded-xl shadow-md overflow-x-auto">
           <div className="flex justify-between items-center mb-4">
-            <h2 className="text-xl font-semibold text-green-700">🧾 Admin Activity Logs</h2>
+            <div className="flex items-center gap-3">
+              <h2 className="text-xl font-semibold text-green-700">🧾 Admin Activity Logs</h2>
+              <span className="bg-green-100 text-green-800 text-xs font-bold px-2 py-1 rounded-full">
+                {activities.length} logs
+              </span>
+            </div>
             <button
               onClick={handleClearLogs}
-              className="bg-red-600 text-white px-4 py-2 rounded hover:bg-red-700 transition"
+              className="bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700 transition text-sm font-medium"
             >
-              Clear Logs
+              🗑 Clear All Logs
             </button>
           </div>
 
           {activities.length === 0 ? (
-            <p className="text-center text-gray-500">No logs available.</p>
+            <p className="text-center text-gray-400 py-8">No activity logs found.</p>
           ) : (
-            <table className="w-full border border-gray-300 text-sm">
+            <table className="w-full border border-gray-200 text-sm rounded-lg overflow-hidden">
               <thead className="bg-green-700 text-white">
                 <tr>
-                  <th className="p-3">Admin</th>
-                  <th className="p-3">Action</th>
-                  <th className="p-3">Target</th>
-                  <th className="p-3">Date & Time</th>
+                  <th className="p-3 text-left">Admin</th>
+                  <th className="p-3 text-left">Action</th>
+                  <th className="p-3 text-left">Target</th>
+                  <th className="p-3 text-left">Date & Time</th>
+                  <th className="p-3 text-center">Remove</th>
                 </tr>
               </thead>
               <tbody>
-                {activities.map((a) => (
+                {activities.map((a, idx) => (
                   <tr
                     key={a._id}
-                    className="text-center border-b hover:bg-green-50 transition"
+                    className={`border-b hover:bg-green-50 transition ${idx % 2 === 0 ? "bg-white" : "bg-gray-50"}`}
                   >
-                    <td className="p-2">{a.admin?.name || "—"}</td>
-                    <td className="p-2">{a.action}</td>
-                    <td className="p-2">{a.target}</td>
-                    <td className="p-2">{new Date(a.createdAt).toLocaleString()}</td>
+                    <td className="p-3 font-medium text-green-700">{a.admin?.name || "—"}</td>
+                    <td className="p-3">
+                      <span className="bg-blue-100 text-blue-700 text-xs px-2 py-1 rounded-full font-medium">
+                        {a.action}
+                      </span>
+                    </td>
+                    <td className="p-3 text-gray-600">{a.target}</td>
+                    <td className="p-3 text-gray-500 text-xs">
+                      {new Date(a.createdAt).toLocaleString()}
+                    </td>
+                    <td className="p-3 text-center">
+                      <button
+                        onClick={() => handleDeleteLog(a._id)}
+                        className="bg-red-50 text-red-600 border border-red-200 px-3 py-1 rounded-lg hover:bg-red-100 transition text-xs font-semibold"
+                      >
+                        ✕ Remove
+                      </button>
+                    </td>
                   </tr>
                 ))}
               </tbody>
@@ -400,3 +432,4 @@ export default function AdminDashboard() {
     </div>
   );
 }
+
